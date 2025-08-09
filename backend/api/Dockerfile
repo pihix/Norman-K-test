@@ -1,38 +1,51 @@
-FROM eclipse-temurin:21.0.7_6-jre-alpine@sha256:7b5c88eb4182a92aab3a4b10550061a6e18639bf176e7ebca21f866b19f853c1
+# ---------- Build stage ----------
+FROM maven:3.9.6-eclipse-temurin-21 AS builder
+WORKDIR /app
 
-ENV USER_NAME api-user
-ENV APP_HOME /opt/$USER_NAME/app
-ENV SPRING_PROFILES_ACTIVE=default
+# Copie ciblée pour tirer les deps en cache rapidement
+COPY .mvn .mvn
+COPY mvnw mvnw
+RUN chmod +x mvnw
+COPY pom.xml pom.xml
 
-# we can use -XX:MaxRAMPercentage=85 if we control the memory from the container engine
-ENV JVM_HEAP_SETTINGS="-Xmx256m"
+# (Optionnel) pré-résoudre plugins/déps, mais on ignore l'échec
+RUN ./mvnw -B -ntp dependency:resolve-plugins dependency:resolve || true
+# Copie du code + ressources
+COPY src src
+COPY db db
 
-ENV JAVA_RUN_OPTS="-Dfile.encoding=UTF-8 \
-    -Djava.net.preferIPv4Stack=true \
-    -XX:+UseParallelGC \
-    -XshowSettings:all \
-    -XX:+PrintFlagsFinal"
+RUN for i in 1 2 3; do \
+    ./mvnw -B -ntp -DskipTests \
+    -Dmaven.wagon.http.retryHandler.count=5 \
+    -Dmaven.wagon.http.pool=false \
+    -Dmaven.wagon.http.connectionTimeout=60000 \
+    -Dmaven.wagon.http.readTimeout=60000 \
+    package && break || { \
+    echo "retry $i..."; \
+    rm -rf ~/.m2/repository/org/mock-server || true; \
+    sleep 5; \
+    }; \
+    done
 
-# This variable can be used in runtime to set or override JVM settings. For example:
-# docker run --rm -ti -e JAVA_OPTS="-Xms50M -Xmx50M" my-app-image
-ENV JAVA_OPTS=""
+# ---------- Runtime stage ----------
+FROM eclipse-temurin:21.0.7_6-jre-alpine
+ENV USER_NAME=api-user \
+    APP_HOME=/opt/api-user/app \
+    SPRING_PROFILES_ACTIVE=default \
+    JVM_HEAP_SETTINGS="-Xmx256m" \
+    JAVA_RUN_OPTS="-Dfile.encoding=UTF-8 -Djava.net.preferIPv4Stack=true -XX:+UseParallelGC -XshowSettings:all -XX:+PrintFlagsFinal" \
+    JAVA_OPTS=""
 
-# Add a volume pointing to /tmp, used by Tomcat
-VOLUME /tmp
+# User non-root + dossier appli
+RUN adduser -D --shell /bin/bash --home /opt/${USER_NAME} ${USER_NAME} \
+    && mkdir -p ${APP_HOME}
 
-# Make port 8080 available to the world outside this container
+# Jar depuis le stage builder
+COPY --from=builder /app/target/*.jar ${APP_HOME}/application.jar
+RUN chown -R ${USER_NAME}: ${APP_HOME}
+
+USER ${USER_NAME}
+WORKDIR ${APP_HOME}
 EXPOSE 8080
 
-# Create the user that will run the application
-RUN adduser -D --shell /bin/bash --home /opt/$USER_NAME $USER_NAME
-RUN mkdir -p $APP_HOME
-
-# Add the application's jar to the container
-ADD target/*.jar $APP_HOME/application.jar
-RUN chown -R $USER_NAME: $APP_HOME
-
-USER $USER_NAME
-WORKDIR $APP_HOME
-
-# Run the jar file. Keep $JAVA_OPTS as the last option before -jar
 CMD java -Djava.security.egd=file:/dev/./urandom $JVM_HEAP_SETTINGS $JAVA_RUN_OPTS $JAVA_OPTS -jar application.jar

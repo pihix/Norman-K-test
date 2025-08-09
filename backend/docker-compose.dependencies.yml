@@ -13,7 +13,12 @@ services:
       - db_data:/var/lib/postgresql/data
     ports:
       - 127.0.0.1::5432 # A random available public port will be assigned. To retrieve its value: `docker compose port db 5432`
-
+    healthcheck:
+      # attention: variables du conteneur => $$ à l’intérieur du test
+      test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB} -h 127.0.0.1 -p 5432"]
+      interval: 5s
+      timeout: 3s
+      retries: 15
   pgadmin:
     image: dpage/pgadmin4:9.5.0@sha256:2a830466aafd9cbc2aea0f76ff81a80dbbba819f2f5db7e69cb40e9cbdb6bc7b
     restart: always

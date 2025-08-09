@@ -1,2 +1,7 @@
-/*
-!target/*.jar
+target/
+.mvn/wrapper/maven-wrapper.jar
+.git
+.idea
+.run
+pmd/
+docs/
