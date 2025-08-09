@@ -128,10 +128,28 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Run Docker Compose
+      - name: Set IMAGE_TAG env
+        run: echo "IMAGE_TAG=${{ github.sha }}" >> $GITHUB_ENV
+
+      - name: Bring up stack (backend/)
+        working-directory: backend
         run: |
-          IMAGE_TAG=${{ github.sha }}
           sed -i "s|image: ghcr.io/.*/norman-k-backend:.*|image: ghcr.io/${{ github.repository_owner }}/norman-k-backend:${IMAGE_TAG}|g" docker-compose.yml
-          docker compose up -d
-          sleep 15  # attendre le démarrage
-          curl -f http://localhost:8080/actuator/health
+
+          docker compose -f docker-compose.yml -f docker-compose.dependencies.yml up -d
+
+      - name: Wait & health check
+        run: |
+          # attend jusqu'à 60s max que l'app réponde
+          for i in {1..12}; do
+            if curl -fsS http://127.0.0.1:8080/actuator/health >/dev/null; then
+              echo "Health OK"; exit 0
+            fi
+            echo "waiting..."; sleep 5
+          done
+          echo "App did not become healthy in time"; exit 1
+
+      - name: Tear down
+        if: always()
+        working-directory: backend
+        run: docker compose -f docker-compose.yml -f docker-compose.dependencies.yml down -v
