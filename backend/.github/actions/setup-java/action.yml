@@ -1,0 +1,13 @@
+name: 'Setup Java'
+description: 'Setup Java environment for Maven builds'
+
+runs:
+  using: "composite"
+  steps:
+    - name: Setup Java
+      uses: actions/setup-java@c5195efecf7bdfc987ee8bae7a71cb8b11521c00 # v4
+      with:
+        distribution: 'temurin'
+        # TODO: Configure Renovate to update .tool-versions file
+        java-version-file: .tool-versions
+        cache: 'maven'

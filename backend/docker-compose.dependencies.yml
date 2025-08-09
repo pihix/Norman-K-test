@@ -1,0 +1,56 @@
+volumes:
+  db_data:
+
+services:
+  db:
+    image: postgres:17.5@sha256:4d89c904835259bc58876520e56267ca07a4ebd6a027f7814bbbf91b50d685be
+    restart: always
+    environment:
+      POSTGRES_DB: "$POSTGRE_DATABASE_NAME"
+      POSTGRES_USER: "$POSTGRE_USER"
+      POSTGRES_PASSWORD: "$POSTGRE_PASSWORD"
+    volumes:
+      - db_data:/var/lib/postgresql/data
+    ports:
+      - 127.0.0.1::5432 # A random available public port will be assigned. To retrieve its value: `docker compose port db 5432`
+
+  pgadmin:
+    image: dpage/pgadmin4:9.5.0@sha256:2a830466aafd9cbc2aea0f76ff81a80dbbba819f2f5db7e69cb40e9cbdb6bc7b
+    restart: always
+    ports:
+      - 127.0.0.1:8008:80
+    depends_on:
+      - db
+    environment:
+      - PGADMIN_DEFAULT_EMAIL=not_used@server.localhost
+      - PGADMIN_DEFAULT_PASSWORD=not_used
+      - PGADMIN_CONFIG_ALLOW_SPECIAL_EMAIL_DOMAINS=["localhost"]
+      - PGADMIN_CONFIG_SERVER_MODE=False
+      - PGADMIN_CONFIG_MASTER_PASSWORD_REQUIRED=False
+    entrypoint: /bin/sh -c "chmod 600 /pgpass; /entrypoint.sh;"
+    user: root
+    configs:
+      - source: servers.json
+        target: /pgadmin4/servers.json
+      - source: pgpass
+        target: /pgpass
+
+configs:
+  pgpass:
+    content: db:5432:*:${POSTGRE_USER}:${POSTGRE_PASSWORD}
+  servers.json:
+    content: |
+      {
+        "Servers": {
+            "1": {
+                "Group": "Servers",
+                "Name": "My Local Postgres",
+                "Host": "db",
+                "Port": 5432,
+                "MaintenanceDB": "postgres",
+                "Username": "${POSTGRE_USER}",
+                "PassFile": "/pgpass",
+                "SSLMode": "prefer"
+            }
+        }
+      }

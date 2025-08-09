@@ -1,0 +1,5 @@
+# .git-blame-ignore-revs
+# doc: https://docs.github.com/en/repositories/working-with-files/using-files/viewing-and-understanding-files#ignore-commits-in-the-blame-view
+
+# chore: format codebase with Spotless
+533e876ca3206462b62aed5b6bd4d9c80d625145

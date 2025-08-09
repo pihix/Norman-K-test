@@ -1,0 +1,56 @@
+name: 'Download Dependency Check Database'
+description: 'Action to download and cache the Dependency Check Database'
+
+inputs:
+  database-directory:
+    description: 'Path to the Dependency Check Database directory'
+    required: true
+  nvdApiKey:
+    description: 'Key for the NVD API to update the database'
+    required: true
+  project-directory:
+    description: 'Path to the project directory'
+    required: true
+
+outputs:
+  tool-version:
+    description: 'Version of the Dependency Check tool used'
+    value: ${{ steps.dependency-check-version.outputs.value }}
+
+runs:
+  using: "composite"
+  steps:
+    - name: Get Dependency Check version from POM.XML
+      id: dependency-check-version
+      shell: bash
+      working-directory: ${{ inputs.project-directory }}
+      run: |
+        which xmllint >/dev/null 2>&1 || sudo apt install -y libxml2-utils > /dev/null
+        echo "value=$(xmllint --xpath "//*[local-name()='properties']/*[local-name()='org.owasp.dependency-check-maven.version']/text()" pom.xml | xargs)" >> $GITHUB_OUTPUT
+
+    - name: Get current date
+      id: date
+      shell: bash
+      run: echo "date=$(date +'%Y-%m-%d')" >> $GITHUB_OUTPUT
+
+    - name: Cache Dependency Check Database
+      id: dependency-check-database-cache
+      uses: actions/cache@5a3ec84eff668545956fd18022155c47e93e2684 # v4
+      with:
+        path: ${{ inputs.database-directory }}
+        key: dependency-check-${{ runner.os }}-${{ steps.dependency-check-version.outputs.value }}-${{ steps.date.outputs.date }}
+        restore-keys: |
+          dependency-check-${{ runner.os }}-${{ steps.dependency-check-version.outputs.value }}-
+          dependency-check-${{ runner.os }}-
+          dependency-check-
+
+    - name: Update vulnerabilities database
+      shell: bash
+      working-directory: ${{ inputs.project-directory }}
+      if: steps.dependency-check-database-cache.outputs.cache-hit != 'true'
+      env:
+        MAVEN_OPTS: "-Djava.awt.headless=true"
+        MAVEN_CLI_OPTS: "--batch-mode --fail-at-end"
+      run: |
+        ./mvnw $MAVEN_CLI_OPTS -DdataDirectory=${{ inputs.database-directory }} -DnvdApiKey=${{ inputs.nvdApiKey }} dependency-check:update-only
+

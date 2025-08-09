@@ -1,0 +1,20 @@
+name: CI/CD
+
+on:
+  push:
+    branches: ["main"]
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  ci:
+    name: CI
+    uses: ./.github/workflows/all_ci.yml
+    secrets: inherit
+
+  cd:
+    name: CD
+    needs: ci
+    if: false # Change this condition when you want to enable CD (eg: `if: github.event_name != 'pull_request'`)
+    uses: ./.github/workflows/all_cd.yml
+    secrets: inherit

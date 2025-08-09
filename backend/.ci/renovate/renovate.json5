@@ -1,0 +1,31 @@
+{
+  "$schema": "https://docs.renovatebot.com/renovate-schema.json",
+  "globalExtends": [
+    "config:best-practices",
+    "group:all",
+    "group:allNonMajor",
+    ":rebaseStalePrs",
+    ":automergeRequireAllStatusChecks",
+    ":enableVulnerabilityAlerts",
+    ":semanticCommitTypeAll(chore)",
+  ],
+  "onboarding": false,
+  "dependencyDashboardTitle": "[Renovate] Dependency Dashboard",
+  "gitAuthor": "Renovate Bot <renovate-bot@noreply.internal>",
+  "platformAutomerge": false,
+  "minimumReleaseAge": "5 days",
+  "prConcurrentLimit": 5,
+  "prHourlyLimit": 5,
+  "separateMinorPatch": true,
+  "requireConfig": "ignored",
+  "ignorePaths": [".gitlab-ci.yml"],
+  "packageRules": [
+    {
+      "groupName": "all patch dependencies",
+      "groupSlug": "all-patch",
+      "matchPackageNames": ["*"],
+      "matchUpdateTypes": ["patch"],
+      "automerge": true,
+    },
+  ],
+}

@@ -1,0 +1,43 @@
+name: Continuous Integration
+
+on:
+  workflow_call:
+
+jobs:
+
+  detect-changes:
+    name: Detect git changes and paths casing issues
+    runs-on: ubuntu-24.04
+    outputs:
+      backend-changed: ${{ steps.check-backend-changes.outputs.changed }}
+    steps:
+      - name: Check out repository code
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4
+        with:
+          fetch-depth: 0 # needed for change detection
+
+      - name: Detect git paths casing issues
+        run: bash "${{ github.workspace }}/.ci/scripts/detect-case-sensitivity-issues-in-paths.sh"
+
+      - name: Check for changes in backend-related files
+        id: check-backend-changes
+        if: github.event_name == 'pull_request'
+        uses: ./.github/actions/check-changes
+        with:
+          watched-items: |
+            api/
+            .github/workflows/all.yml
+            .github/workflows/all_ci.yml
+            .github/workflows/_ci_maven_springboot.yml
+
+  # One CI job per project in the monorepo
+  # It's recommended to "use" a reusable workflow template
+  ci-backend:
+    name: Backend
+    needs: detect-changes
+    if: github.event_name != 'pull_request' || needs.detect-changes.outputs.backend-changed == 'true'
+    uses: ./.github/workflows/_ci_maven_springboot.yml
+    secrets: inherit
+    with:
+      project-directory: api
+      unique-artifact-name-prefix: backend

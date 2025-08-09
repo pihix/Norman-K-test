@@ -1,0 +1,204 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Testing page example should render home 1`] = `
+.emotion-0 {
+  padding: 32px;
+  background-color: #c43bad;
+  font-size: 24px;
+  border-radius: 4px;
+  color: black;
+  font-weight: bold;
+}
+
+.emotion-0:hover {
+  color: white;
+}
+
+<div>
+  <div>
+    <section
+      class="text-gray-600 body-font"
+    >
+      <div
+        class="container px-5 py-24 mx-auto"
+      >
+        <div
+          class="flex flex-col w-full mb-20 text-center justify-center items-center"
+        >
+          <img
+            alt="Logo"
+            class="mb-4"
+            data-nimg="1"
+            decoding="async"
+            height="100"
+            loading="lazy"
+            src="/logo.svg"
+            style="color: transparent;"
+            width="100"
+          />
+          <h2
+            class="mb-1 text-xs font-medium tracking-widest text-red-500 title-font"
+          >
+            NIMBLENEXT
+          </h2>
+          <h1
+            class="mb-4 text-2xl font-medium text-gray-900 sm:text-3xl title-font"
+          >
+            Nimbleways' Opinionated Next.js boilerplate
+          </h1>
+        </div>
+        <div
+          class="flex flex-wrap justify-center"
+        >
+          <div
+            class="xl:w-1/4 lg:w-1/2 md:w-full px-8 py-6 border-l-2 border-gray-200 border-opacity-60 flex flex-col justify-between"
+          >
+            <section>
+              <h2
+                class="text-lg sm:text-xl text-gray-900 font-medium title-font mb-2"
+              >
+                Stability
+              </h2>
+              <p
+                class="leading-relaxed text-base mb-4"
+              >
+                Le produit ne doit pas présenter de bugs impactant l'expérience utilisateur.
+              </p>
+            </section>
+            <a
+              class="text-red-500 inline-flex items-center"
+              href="https://www.notion.so/m33/Framework-Qualit-3S-3bff76b2f374475298ef909341696281#77f96802a1954504a71ca6480f609c50"
+              rel="noreferrer"
+              target="_blank"
+            >
+              Learn More
+              <svg
+                class="w-4 h-4 ml-2"
+                fill="none"
+                stroke="currentColor"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  d="M5 12h14M12 5l7 7-7 7"
+                />
+              </svg>
+            </a>
+          </div>
+          <div
+            class="xl:w-1/4 lg:w-1/2 md:w-full px-8 py-6 border-l-2 border-gray-200 border-opacity-60 flex flex-col justify-between"
+          >
+            <section>
+              <h2
+                class="text-lg sm:text-xl text-gray-900 font-medium title-font mb-2"
+              >
+                Security
+              </h2>
+              <p
+                class="leading-relaxed text-base mb-4"
+              >
+                Le produit doit être prémunis contre les vulnérabilités les plus communes.
+              </p>
+            </section>
+            <a
+              class="text-red-500 inline-flex items-center"
+              href="https://www.notion.so/m33/Framework-Qualit-3S-3bff76b2f374475298ef909341696281#becfbc6cab35431fbef11110c9b34546"
+              rel="noreferrer"
+              target="_blank"
+            >
+              Learn More
+              <svg
+                class="w-4 h-4 ml-2"
+                fill="none"
+                stroke="currentColor"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  d="M5 12h14M12 5l7 7-7 7"
+                />
+              </svg>
+            </a>
+          </div>
+          <div
+            class="xl:w-1/4 lg:w-1/2 md:w-full px-8 py-6 border-l-2 border-gray-200 border-opacity-60 flex flex-col justify-between"
+          >
+            <section>
+              <h2
+                class="text-lg sm:text-xl text-gray-900 font-medium title-font mb-2"
+              >
+                Speed
+              </h2>
+              <p
+                class="leading-relaxed text-base mb-4"
+              >
+                Le produit doit être au standard sur la performance. Ca inclut la vitesse de chargement et la scalabilité.
+              </p>
+            </section>
+            <a
+              class="text-red-500 inline-flex items-center"
+              href="https://www.notion.so/m33/Framework-Qualit-3S-3bff76b2f374475298ef909341696281#b9184c326e2c48d6a696ecd59f64328f"
+              rel="noreferrer"
+              target="_blank"
+            >
+              Learn More
+              <svg
+                class="w-4 h-4 ml-2"
+                fill="none"
+                stroke="currentColor"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  d="M5 12h14M12 5l7 7-7 7"
+                />
+              </svg>
+            </a>
+          </div>
+        </div>
+        <div
+          class="flex flex-col w-full mb-20 text-center"
+        >
+          <h2
+            class="mb-1 text-s font-medium tracking-widest text-red-500 "
+          >
+            <button
+              class="btn btn-blue"
+            >
+              Changer la langue
+            </button>
+          </h2>
+          <div
+            class="mb-4 text-2xl font-medium text-gray-900 sm:text-3xl title-font"
+          >
+            <h2>
+              example de texte
+            </h2>
+            <h2>
+              exemple de texte 
+              <u>
+                formaté
+              </u>
+            </h2>
+            <div
+              class="flex justify-center mt-4"
+            >
+              <button
+                class="emotion-0 emotion-1"
+              >
+                Exemple de bouton @emotion/styled
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  </div>
+</div>
+`;
