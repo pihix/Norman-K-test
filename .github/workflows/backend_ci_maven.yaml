@@ -120,6 +120,9 @@ jobs:
     name: Integration Test with Docker Compose
     runs-on: ubuntu-latest
     needs: docker_build_push
+    permissions:
+      contents: read
+      packages: read
     steps:
       - uses: actions/checkout@v4
 
@@ -136,9 +139,10 @@ jobs:
       - name: Bring up stack (backend/)
         working-directory: backend
         run: |
-          sed -i "s|image: ghcr.io/.*/norman-k-backend:.*|image: ghcr.io/${{ github.repository_owner }}/norman-k-backend:${IMAGE_TAG}|g" docker-compose.yml
-
+          echo "IMAGE_TAG=${{ github.sha }}" >> .env
+          echo "GITHUB_REPOSITORY_OWNER=${{ github.repository_owner }}" >> .env
           docker compose -f docker-compose.yml -f docker-compose.dependencies.yml up -d
+          docker compose ps
 
       - name: Wait & health check
         run: |
@@ -150,6 +154,15 @@ jobs:
             echo "waiting..."; sleep 5
           done
           echo "App did not become healthy in time"; exit 1
+
+      - name: Dump logs on failure
+        if: failure()
+        working-directory: backend
+        run: |
+          echo "=== APP LOGS ==="
+          docker compose logs app || true
+          echo "=== DB LOGS ==="
+          docker compose logs db || true
 
       - name: Tear down
         if: always()
