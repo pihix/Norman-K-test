@@ -12,6 +12,7 @@ services:
     depends_on:
       - db
     build: ./api
+    image: ghcr.io/${GITHUB_REPOSITORY_OWNER}/norman-k-backend:${IMAGE_TAG}
     ports:
       - 127.0.0.1:$SPRING_PUBLIC_PORT:$SPRING_PRIVATE_PORT
     environment:

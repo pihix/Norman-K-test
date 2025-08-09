@@ -113,3 +113,25 @@ jobs:
             -t $IMAGE_NAME:${{ github.sha }}
           docker push $IMAGE_NAME:latest
           docker push $IMAGE_NAME:${{ github.sha }}
+
+  integration_test:
+    name: Integration Test with Docker Compose
+    runs-on: ubuntu-latest
+    needs: docker_build_push
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Login to GHCR
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Run Docker Compose
+        run: |
+          IMAGE_TAG=${{ github.sha }}
+          sed -i "s|image: ghcr.io/.*/norman-k-backend:.*|image: ghcr.io/${{ github.repository_owner }}/norman-k-backend:${IMAGE_TAG}|g" docker-compose.yml
+          docker compose up -d
+          sleep 15  # attendre le démarrage
+          curl -f http://localhost:8080/actuator/health
