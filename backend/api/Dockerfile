@@ -28,7 +28,7 @@ RUN adduser -D --shell /bin/bash --home /opt/$USER_NAME $USER_NAME
 RUN mkdir -p $APP_HOME
 
 # Add the application's jar to the container
-ADD target/*.jar $APP_HOME/application.jar
+ADD backend/api/target/*.jar $APP_HOME/application.jar
 RUN chown -R $USER_NAME: $APP_HOME
 
 USER $USER_NAME

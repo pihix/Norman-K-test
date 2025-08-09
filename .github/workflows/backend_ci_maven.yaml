@@ -88,6 +88,9 @@ jobs:
       contents: read
       packages: write
 
+    env:
+      IMAGE_NAME: ghcr.io/${{ github.repository_owner }}/norman-k-backend
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -105,14 +108,13 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Build & Push
+      - name: Build Docker Image
         run: |
           IMAGE_NAME=ghcr.io/${{ github.repository_owner }}/norman-k-backend
-          docker build backend/api \
-            -t $IMAGE_NAME:latest \
-            -t $IMAGE_NAME:${{ github.sha }}
-          docker push $IMAGE_NAME:latest
-          docker push $IMAGE_NAME:${{ github.sha }}
+          docker build -t ${{ env.IMAGE_NAME }}:${{ github.sha }} backend/api
+
+      - name: Push Docker Image
+        run: docker push ${{ env.IMAGE_NAME }}:${{ github.sha }}
 
   integration_test:
     name: Integration Test with Docker Compose
