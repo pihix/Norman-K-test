@@ -1,0 +1,80 @@
+name: Backend CI (Maven)
+
+on:
+  push:
+    branches: ["dev"]
+    paths:
+      - "backend/**"
+      - ".github/workflows/backend_ci_maven.yaml"
+  pull_request:
+    branches: ["dev"]
+    paths:
+      - "backend/**"
+      - ".github/workflows/backend_ci_maven.yaml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  JAVA_VERSION: "21" # ou '17' selon le projet
+  ARTIFACT_NAME: Norman-K-Backend
+  WORKDIR: backend/api
+
+jobs:
+  build_test:
+    name: Build & Test (Backend)
+    runs-on: ubuntu-latest
+
+    defaults:
+      run:
+        working-directory: ${{ env.WORKDIR }}
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Temurin JDK
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: ${{ env.JAVA_VERSION }}
+          cache: maven
+
+      - name: Verify Maven Wrapper present
+        run: |
+          if [ ! -f "./mvnw" ]; then
+            echo "::warning::mvnw non trouvé. On utilisera mvn système."
+          fi
+
+      - name: Show versions
+        run: |
+          java -version
+          ./mvnw -v || mvn -v
+
+      - name: Unit tests
+        run: |
+          chmod +x mvnw || true
+          ./mvnw -B -ntp -DskipTests=false test || mvn -B -ntp -DskipTests=false test
+
+      - name: Package (Jar)
+        run: |
+          ./mvnw -B -ntp -DskipTests package || mvn -B -ntp -DskipTests package
+
+      - name: Collect JAR
+        id: jar_path
+        run: |
+          FILE=$(ls -1 target/*.jar | head -n1)
+          echo "file=$FILE" >> "$GITHUB_OUTPUT"
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ env.ARTIFACT_NAME }}
+          path: ${{ steps.jar_path.outputs.file }}
+          if-no-files-found: error
+          retention-days: 7
