@@ -78,3 +78,38 @@ jobs:
           path: ${{ env.WORKDIR }}/${{ steps.jar_path.outputs.file }}
           if-no-files-found: error
           retention-days: 7
+
+  docker_build_push:
+    name: Build & Push Docker image
+    runs-on: ubuntu-latest
+    needs: build_test
+
+    permissions:
+      contents: read
+      packages: write
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Download backend artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: Norman-K-Backend
+          path: backend/api/target
+
+      - name: Login to GHCR
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Build & Push
+        run: |
+          IMAGE_NAME=ghcr.io/${{ github.repository_owner }}/norman-k-backend
+          docker build backend/api \
+            -t $IMAGE_NAME:latest \
+            -t $IMAGE_NAME:${{ github.sha }}
+          docker push $IMAGE_NAME:latest
+          docker push $IMAGE_NAME:${{ github.sha }}

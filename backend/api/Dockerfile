@@ -8,10 +8,10 @@ ENV SPRING_PROFILES_ACTIVE=default
 ENV JVM_HEAP_SETTINGS="-Xmx256m"
 
 ENV JAVA_RUN_OPTS="-Dfile.encoding=UTF-8 \
--Djava.net.preferIPv4Stack=true \
--XX:+UseParallelGC \
--XshowSettings:all \
--XX:+PrintFlagsFinal"
+    -Djava.net.preferIPv4Stack=true \
+    -XX:+UseParallelGC \
+    -XshowSettings:all \
+    -XX:+PrintFlagsFinal"
 
 # This variable can be used in runtime to set or override JVM settings. For example:
 # docker run --rm -ti -e JAVA_OPTS="-Xms50M -Xmx50M" my-app-image
