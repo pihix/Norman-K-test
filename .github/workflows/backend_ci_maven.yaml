@@ -75,6 +75,6 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: ${{ env.ARTIFACT_NAME }}
-          path: ${{ steps.jar_path.outputs.file }}
+          path: ${{ env.WORKDIR }}/${{ steps.jar_path.outputs.file }}
           if-no-files-found: error
           retention-days: 7
