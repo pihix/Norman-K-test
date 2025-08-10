@@ -24,6 +24,7 @@ env:
   JAVA_VERSION: "21" # ou '17' selon le projet
   ARTIFACT_NAME: Norman-K-Backend
   WORKDIR: backend/api
+  TEST: "test"
 
 jobs:
   build_test:
