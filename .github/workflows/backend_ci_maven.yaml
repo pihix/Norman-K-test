@@ -24,8 +24,8 @@ env:
   JAVA_VERSION: "21" # ou '17' selon le projet
   ARTIFACT_NAME: Norman-K-Backend
   WORKDIR: backend/api
-  AWS_REGION: eu-east-1
-  AWS_DEFAULT_REGION: eu-east-1
+  AWS_REGION: us-east-1
+  AWS_DEFAULT_REGION: us-east-1
   EB_APP_NAME: norman-k-backend
   EB_ENV_NAME: norman-k-backend-env
   S3_BUCKET: eb-artifacts-norman-k
