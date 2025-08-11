@@ -71,6 +71,5 @@ management:
 retrofit:
   posts:
     base-url: https://jsonplaceholder.typicode.com
-
 # TODO: custom error page with no sensible information: https://www.baeldung.com/spring-boot-custom-error-page
 # TODO: explore all common properties: https://docs.spring.io/spring-boot/docs/current/reference/html/application-properties.html
