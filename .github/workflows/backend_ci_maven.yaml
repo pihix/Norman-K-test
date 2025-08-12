@@ -29,7 +29,7 @@ env:
   EB_APP_NAME: norman-k-backend
   EB_ENV_NAME: norman-k-backend-env
   S3_BUCKET: eb-artifacts-norman-k
-  TRIGGER: "TestingMYCICD"
+  TRIGGER: "Testing_MYCICD"
 
 jobs:
   build_test:
