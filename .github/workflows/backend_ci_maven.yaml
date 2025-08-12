@@ -137,6 +137,12 @@ jobs:
         run: |
           echo "sha=${GITHUB_SHA}" >> $GITHUB_OUTPUT
           echo "image=ghcr.io/${GITHUB_REPOSITORY_OWNER,,}/norman-k-backend:${GITHUB_SHA}" >> $GITHUB_OUTPUT
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET }}
+          aws-region: ${{ env.AWS_REGION }}
 
       - name: Set EB environment vars
         run: |
@@ -170,13 +176,6 @@ jobs:
           (cd bundle && zip -r ../bundle.zip .)
 
           unzip -l bundle.zip
-
-      - name: Configure AWS credentials
-        uses: aws-actions/configure-aws-credentials@v4
-        with:
-          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          aws-secret-access-key: ${{ secrets.AWS_SECRET }}
-          aws-region: ${{ env.AWS_REGION }}
 
       - name: Upload bundle to S3
         run: aws s3 cp bundle.zip s3://${{ env.S3_BUCKET }}/bundle-${{ steps.vars.outputs.sha }}.zip
