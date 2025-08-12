@@ -138,16 +138,28 @@ jobs:
           echo "sha=${GITHUB_SHA}" >> $GITHUB_OUTPUT
           echo "image=ghcr.io/${GITHUB_REPOSITORY_OWNER,,}/norman-k-backend:${GITHUB_SHA}" >> $GITHUB_OUTPUT
 
-      - name: Generate Dockerrun.aws.json
+      - name: Generate Dockerrun & bundle
         run: |
-          cat > Dockerrun.aws.json <<EOF
+          set -e
+          rm -rf bundle bundle.zip
+          mkdir -p bundle
+
+          cat > bundle/Dockerrun.aws.json <<'EOF'
           {
             "AWSEBDockerrunVersion": "1",
             "Image": { "Name": "${{ steps.vars.outputs.image }}", "Update": "true" },
             "Ports": [ { "ContainerPort": 8080 } ]
           }
           EOF
-          zip bundle.zip Dockerrun.aws.json
+
+          mkdir -p bundle/.platform
+          cp -R backend/.platform/* bundle/.platform/ 2>/dev/null || true
+
+          chmod +x bundle/.platform/hooks/prebuild/01_docker_login.sh || true
+
+          (cd bundle && zip -r ../bundle.zip .)
+
+          unzip -l bundle.zip
 
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v4
