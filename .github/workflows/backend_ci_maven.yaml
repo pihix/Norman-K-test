@@ -145,7 +145,7 @@ jobs:
             --option-settings '[
               {"Namespace":"aws:elasticbeanstalk:application:environment","OptionName":"DOCKER_REGISTRY_SERVER","Value":"ghcr.io"},
               {"Namespace":"aws:elasticbeanstalk:application:environment","OptionName":"DOCKER_USERNAME","Value":"pihix"},
-              {"Namespace":"aws:elasticbeanstalk:application:environment","OptionName":"DOCKER_PASSWORD","Value":"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"}
+              {"Namespace":"aws:elasticbeanstalk:application:environment","OptionName":"DOCKER_PASSWORD","Value":"${{ secrets.GHCR_PAT }}"}
             ]'
 
       - name: Generate Dockerrun & bundle
