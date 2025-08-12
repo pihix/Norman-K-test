@@ -145,36 +145,6 @@ jobs:
           aws-secret-access-key: ${{ secrets.AWS_SECRET }}
           aws-region: ${{ env.AWS_REGION }}
 
-      - name: Set EB env vars (GHCR)
-        shell: bash
-        run: |
-          set -euo pipefail
-          cat > eb-options.json <<'JSON'
-          {
-            "OptionSettings": [
-              {
-                "Namespace": "aws:elasticbeanstalk:application:environment",
-                "OptionName": "DOCKER_REGISTRY_SERVER",
-                "Value": "ghcr.io"
-              },
-              {
-                "Namespace": "aws:elasticbeanstalk:application:environment",
-                "OptionName": "GHCR_USERNAME",
-                "Value": "${{ secrets.GHCR_USERNAME }}"
-              },
-              {
-                "Namespace": "aws:elasticbeanstalk:application:environment",
-                "OptionName": "GHCR_TOKEN",
-                "Value": "${{ secrets.GHCR_TOKEN }}"
-              }
-            ]
-          }
-          JSON
-
-          aws elasticbeanstalk update-environment \
-            --environment-name "${{ env.EB_ENV_NAME }}" \
-            --cli-input-json file://eb-options.json
-
       - name: Generate Dockerrun & bundle
         run: |
           set -e
