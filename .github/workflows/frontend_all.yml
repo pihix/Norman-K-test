@@ -5,12 +5,12 @@ on:
     branches: ["pipeline-frontend-CI-CD"]
     paths:
       - "frontend/**"
-      - ".github/workflows/frontend_ci.yml"
+      - ".github/workflows/frontend*"
   pull_request:
     branches: ["pipeline-frontend-CI-CD"]
     paths:
       - "frontend/**"
-      - ".github/workflows/frontend_ci.yml"
+      - ".github/workflows/frontend*"
   workflow_dispatch:
 
 jobs:
