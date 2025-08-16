@@ -62,8 +62,7 @@ const basicConfig = {
 const staticExportConfig = {
   ...basicConfig,
   output: "export",
-  images: { unoptimized: true }, // 👈 ajouté ici
-
+  images: { unoptimized: true }, 
 };
 
 /** @type {import('next').NextConfig} */
