@@ -4,3 +4,13 @@ on:
   workflow_call:
   workflow_dispatch:
 
+jobs:
+
+  deploy-frontend:
+    name: Deploy Frontend
+    concurrency: ${{ github.ref_name }}-frontend
+    runs-on: ubuntu-latest
+    steps:
+      - name: Placeholder for deploy step
+        run: echo "No deploy step defined. Skipping."
+
