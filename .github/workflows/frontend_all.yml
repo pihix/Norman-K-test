@@ -1,0 +1,27 @@
+name: FrontEnd CI/CD
+
+on:
+  push:
+    branches: ["pipeline-frontend-CI-CD"]
+    paths:
+      - "frontend/**"
+      - ".github/workflows/frontend_ci.yml"
+  pull_request:
+    branches: ["pipeline-frontend-CI-CD"]
+    paths:
+      - "frontend/**"
+      - ".github/workflows/frontend_ci.yml"
+  workflow_dispatch:
+
+jobs:
+  frontend_ci:
+    name: FrontEnd CI
+    uses: ./.github/workflows/frontend_ci.yml
+    secrets: inherit
+
+#   frontend_cd:
+#     name: FrontEnd CD
+#     needs: frontend_ci
+#     if: false # Change this condition when you want to enable CD (eg: `if: github.event_name != 'pull_request'`)
+#     uses: ./.github/workflows/frontend_cd.yml
+#     secrets: inherit

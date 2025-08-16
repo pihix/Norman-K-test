@@ -1,16 +1,7 @@
 name: Frontend CI
 
 on:
-  push:
-    branches: ["pipeline-frontend-CI-CD"]
-    paths:
-      - "frontend/**"
-      - ".github/workflows/frontend_ci.yml"
-  pull_request:
-    branches: ["pipeline-frontend-CI-CD"]
-    paths:
-      - "frontend/**"
-      - ".github/workflows/frontend_ci.yml"
+  workflow_call:
   workflow_dispatch:
 
 permissions:
