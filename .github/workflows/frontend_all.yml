@@ -16,7 +16,7 @@ on:
 jobs:
   frontend_ci:
     name: FrontEnd CI
-    uses: .github/workflows/frontend_ci.yml
+    uses: ./.github/workflows/frontend_ci.yml
     secrets: inherit
 
 #   frontend_cd:
