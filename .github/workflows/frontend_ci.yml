@@ -23,10 +23,11 @@ concurrency:
 
   
 env:
-    CI: "true"
-    NEXT_TELEMETRY_DISABLED: "1"
+  CI: "true"
+  NEXT_TELEMETRY_DISABLED: "1"
 
-build:
+jobs:
+  build:
     name: CI - Test & Build (Next.js)
     runs-on: ubuntu-latest
     timeout-minutes: 15
