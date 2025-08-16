@@ -51,7 +51,7 @@ jobs:
           cache: "pnpm"
 
       - name: Setup pnpm
-        uses: pnpm/action-steup@v4
+        uses: pnpm/action-setup@v4
         with:
           version: 9.12.0
           run_install: false
@@ -88,3 +88,24 @@ jobs:
           pnpm typecheck
           pnpm lint:all
           pnpm test:coverage --cacheDirectory .cicache/jest
+
+      - name: Dead code detection (knip) on main
+        if: github.event_name == 'push' && startsWith(github.ref, 'refs/heads/main')
+        run: pnpm knip
+
+      - name: Export build metadata
+        run: |
+            echo "NEXT_PUBLIC_BUILD_ID=${{ github.run_id }}-${{ github.run_attempt }}" >> $GITHUB_ENV
+            echo "NEXT_PUBLIC_BUILD_DATE=$(date --utc +'%Y-%m-%dT%H:%M:%SZ')" >> $GITHUB_ENV
+            echo "NEXT_PUBLIC_BUILD_SHA=${{ github.sha }}" >> $GITHUB_ENV
+
+      - name: Check asset sizes
+        run: pnpm check-filesize
+
+      - name: Report Coverage
+        uses: romeovs/lcov-reporter-action@v0.2.21
+        continue-on-error: true
+        with:
+            github-token: ${{ github.token }}
+
+      
