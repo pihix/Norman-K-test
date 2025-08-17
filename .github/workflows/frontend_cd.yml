@@ -2,73 +2,97 @@ name: Frontend CD
 
 on:
   workflow_call:
-    
+    inputs:
+      workdir:
+        description: "Frontend working directory"
+        required: false
+        default: "frontend"
+        type: string
+      node_version:
+        required: false
+        default: "20"
+        type: string
+      pnpm_version:
+        required: false
+        default: "9.12.0"
+        type: string
+      cloudfront_invalidate:
+        required: false
+        default: false
+        type: boolean
     secrets:
-        AWS_ACCESS_KEY_ID:
-            required: true
-        AWS_SECRET_ACCESS_KEY:
-            required: true
-        AWS_REGION:
-            required: true
-        S3_BUCKET:
-            required: true
-        CLOUDFRONT_DISTRIBUTION_ID:
-            required: false
+      AWS_ACCESS_KEY_ID:
+        required: true
+      AWS_SECRET_ACCESS_KEY:
+        required: true
+      AWS_REGION:
+        required: true
+      S3_BUCKET:
+        required: true
+      CLOUDFRONT_DISTRIBUTION_ID:
+        required: false
 
 jobs:
-
   deploy_s3:
     name: Deploy static export to S3
-    concurrency: ${{ github.ref_name }}-frontend
-    runs-on: ubuntu-latest 
+    runs-on: ubuntu-latest
+    concurrency:
+      group: ${{ github.ref }}-frontend-s3
+      cancel-in-progress: true
+
+    env:
+      CI: "true"
+      NEXT_TELEMETRY_DISABLED: "1"
+
     defaults:
       run:
-        working-directory: frontend
+        working-directory: ${{ inputs.workdir }}
+
     steps:
-        - uses: actions/checkout@v4
+      - uses: actions/checkout@v4
 
-        - uses: actions/setup-node@v4
-          with:
-            node-version: "20"
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ inputs.node_version }}
 
-        - uses: pnpm/action-setup@v4
-          with:
-            version: 9.12.0
-            run_install: false
+      - uses: pnpm/action-setup@v4
+        with:
+          version: ${{ inputs.pnpm_version }}
+          run_install: false
 
-        - name: Restore pnpm store
-          id: pnpm-cache
-          run: echo "STORE_PATH=$(pnpm store path --silent)" >> $GITHUB_OUTPUT
+      - name: Restore pnpm store
+        id: pnpm-cache
+        run: echo "STORE_PATH=$(pnpm store path --silent)" >> $GITHUB_OUTPUT
+      - uses: actions/cache@v4
+        with:
+          path: ${{ steps.pnpm-cache.outputs.STORE_PATH }}
+          key: pnpm-store-${{ runner.os }}-${{ hashFiles('**/pnpm-lock.yaml') }}
+          restore-keys: |
+            pnpm-store-${{ runner.os }}-
 
-        - uses: actions/cache@v4
-          with:
-            path: ${{ steps.pnpm-cache.outputs.STORE_PATH }}
-            key: pnpm-store-${{ runner.os }}-${{ hashFiles('**/pnpm-lock.yaml') }}
-            restore-keys: pnpm-store-${{ runner.os }}-
+      - name: Install deps
+        run: pnpm install --frozen-lockfile --prefer-offline
 
-        - name: Install deps
-          run: pnpm install --frozen-lockfile --prefer-offline
+      - name: Export build metadata
+        run: |
+          echo "NEXT_PUBLIC_BUILD_ID=${{ github.run_id }}-${{ github.run_attempt }}" >> $GITHUB_ENV
+          echo "NEXT_PUBLIC_BUILD_DATE=$(date --utc +'%Y-%m-%dT%H:%M:%SZ')" >> $GITHUB_ENV
+          echo "NEXT_PUBLIC_BUILD_SHA=${{ github.sha }}" >> $GITHUB_ENV
 
-        - name: Export build metadata
-          run: |
-            echo "NEXT_PUBLIC_BUILD_ID=${{ github.run_id }}-${{ github.run_attempt }}" >> $GITHUB_ENV
-            echo "NEXT_PUBLIC_BUILD_DATE=$(date --utc +'%Y-%m-%dT%H:%M:%SZ')" >> $GITHUB_ENV
-            echo "NEXT_PUBLIC_BUILD_SHA=${{ github.sha }}" >> $GITHUB_ENV
+      - name: Build (Next.js export)
+        run: pnpm build:export
 
-        - name: Build (Next.js export)
-          run: pnpm build:export   # produit ./out
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id:     ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region:            ${{ secrets.AWS_REGION }}
 
-        - name: Configure AWS credentials
-          uses: aws-actions/configure-aws-credentials@v4
-          with:
-            aws-access-key-id:     ${{ secrets.AWS_ACCESS_KEY_ID }}
-            aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-            aws-region:            ${{ secrets.AWS_REGION }}
-
-        # 1) assets hashés => long cache
-        - name: Upload immutable assets with long cache
-          run: |
-            aws s3 cp ./out s3://${{ secrets.S3_BUCKET }}/ \
+      # 1) assets hashés => long cache
+      - name: Upload immutable assets with long cache
+        run: |
+          aws s3 cp ./out s3://${{ secrets.S3_BUCKET }}/ \
             --recursive \
             --exclude "*" \
             --include "_next/static/*" \
@@ -76,12 +100,19 @@ jobs:
             --cache-control "public,max-age=31536000,immutable" \
             --metadata-directive REPLACE
 
-        # 2) html & le reste => cache court
-        - name: Upload HTML and others with short cache
-          run: |
-            aws s3 cp ./out s3://${{ secrets.S3_BUCKET }}/ \
+      # 2) html & le reste => cache court
+      - name: Upload HTML and others with short cache
+        run: |
+          aws s3 cp ./out s3://${{ secrets.S3_BUCKET }}/ \
             --recursive \
             --exclude "_next/*" \
             --exclude "assets/*" \
             --cache-control "public,max-age=60" \
             --metadata-directive REPLACE
+
+      - name: Invalidate CloudFront (optional)
+        if: ${{ inputs.cloudfront_invalidate && secrets.CLOUDFRONT_DISTRIBUTION_ID != '' }}
+        run: |
+          aws cloudfront create-invalidation \
+            --distribution-id ${{ secrets.CLOUDFRONT_DISTRIBUTION_ID }} \
+            --paths "/*"
