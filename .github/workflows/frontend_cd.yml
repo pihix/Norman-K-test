@@ -3,7 +3,7 @@ name: Frontend CD
 on:
   workflow_call:
     inputs:
-      secrets:
+    secrets:
         AWS_ACCESS_KEY_ID:
             required: true
         AWS_SECRET_ACCESS_KEY:
@@ -21,10 +21,8 @@ jobs:
     name: Deploy static export to S3
     concurrency: ${{ github.ref_name }}-frontend
     runs-on: ubuntu-latest 
-    
-    runs-on: ubuntu-latest
     defaults:
-        run:
+      run:
         working-directory: frontend
     steps:
         - uses: actions/checkout@v4
@@ -87,5 +85,4 @@ jobs:
             --exclude "assets/*" \
             --cache-control "public,max-age=60" \
             --metadata-directive REPLACE
-
 
