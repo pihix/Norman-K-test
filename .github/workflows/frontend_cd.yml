@@ -2,7 +2,7 @@ name: Frontend CD
 
 on:
   workflow_call:
-    inputs:
+    
     secrets:
         AWS_ACCESS_KEY_ID:
             required: true
@@ -85,4 +85,3 @@ jobs:
             --exclude "assets/*" \
             --cache-control "public,max-age=60" \
             --metadata-directive REPLACE
-
