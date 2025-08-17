@@ -28,9 +28,9 @@ jobs:
     uses: ./.github/workflows/frontend_ci.yml
     secrets: inherit
 
-#   frontend_cd:
-#     name: FrontEnd CD
-#     needs: frontend_ci
-#     if: false # Change this condition when you want to enable CD (eg: `if: github.event_name != 'pull_request'`)
-#     uses: ./.github/workflows/frontend_cd.yml
-#     secrets: inherit
+  frontend_cd:
+    name: FrontEnd CD
+    needs: frontend_ci
+    # if: false # Change this condition when you want to enable CD (eg: `if: github.event_name != 'pull_request'`)
+    uses: ./.github/workflows/frontend_cd.yml
+    secrets: inherit
