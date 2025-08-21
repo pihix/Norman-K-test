@@ -5,3 +5,5 @@ target/
 .run
 pmd/
 docs/
+!target/*.jar
+!Dockerfile
