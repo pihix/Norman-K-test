@@ -4,9 +4,11 @@ on:
   workflow_call:
 
 env:
+  JAVA_VERSION: "21" # ou '17' selon le projet
+  ARTIFACT_NAME: Norman-K-Backend
+  WORKDIR: backend/api
   CI: "true"
   NEXT_TELEMETRY_DISABLED: "1"
-  WORKDIR: backend/api
   AWS_REGION: ${{ secrets.AWS_REGION }}
 
   AWS_ECR_REGISTRY: ${{ secrets.AWS_ECR_REGISTRY }}
