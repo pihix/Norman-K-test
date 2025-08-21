@@ -1,0 +1,21 @@
+{
+  "family": "normank-backend-task",
+  "networkMode": "awsvpc",
+  "executionRoleArn": "arn:aws:iam::619071311778:role/ecsTaskExecutionRole",
+  "requiresCompatibilities": ["FARGATE"],
+  "cpu": "256",
+  "memory": "512",
+  "containerDefinitions": [
+    {
+      "name": "backend-container",
+      "image": "619071311778.dkr.ecr.us-east-1.amazonaws.com/normank/backend:latest",
+      "portMappings": [
+        {
+          "containerPort": 8080,
+          "protocol": "tcp"
+        }
+      ],
+      "essential": true
+    }
+  ]
+}
