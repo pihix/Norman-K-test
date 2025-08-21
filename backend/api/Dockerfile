@@ -11,9 +11,10 @@ ENV USER_NAME=api-user \
 RUN adduser -D --shell /bin/bash --home /opt/${USER_NAME} ${USER_NAME} \
     && mkdir -p ${APP_HOME}
 
-#  On copie le .jar qui vient de GitHub Actions
+# Copie le .jar qui vient de GitHub Actions
 COPY target/*.jar ${APP_HOME}/application.jar
 RUN chown -R ${USER_NAME}: ${APP_HOME}
+
 
 USER ${USER_NAME}
 WORKDIR ${APP_HOME}
