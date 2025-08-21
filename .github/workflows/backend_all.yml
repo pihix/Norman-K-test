@@ -2,12 +2,12 @@ name: BackEnd CI/CD
 
 on:
   push:
-    branches: ["feature/backend-ci-cd"]
+    branches: ["pipeline-backend-CI-CD"]
     paths:
       - "backend/**"
       - ".github/workflows/backend*"
   pull_request:
-    branches: ["feature/backend-ci-cd"]
+    branches: ["pipeline-backen-CI-CD"]
     paths:
       - "backend/**"
       - ".github/workflows/backend*"
