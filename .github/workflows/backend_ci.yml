@@ -84,7 +84,7 @@ jobs:
       - name: Download backend artifact
         uses: actions/download-artifact@v4
         with:
-          name: Norman-K-Backend
+          name: ${{ env.ARTIFACT_NAME }}
           path: backend/api/target
 
       - name: Configure AWS credentials
