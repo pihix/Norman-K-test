@@ -99,6 +99,7 @@ jobs:
         uses: aws-actions/amazon-ecr-login@v2
 
       - name: Build, tag, and push Docker image
+        working-directory: ${{ env.WORKDIR }}
         env:
           REGISTRY: ${{ secrets.AWS_ECR_REGISTRY }}
           REPOSITORY: ${{ env.AWS_ECR_BACKEND_REPOSITORY }}
