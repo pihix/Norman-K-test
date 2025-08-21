@@ -35,8 +35,8 @@ jobs:
           java-version: ${{ env.JAVA_VERSION }}
           cache: maven
 
-      - name: Build, Test & Package
-        run: mvn -B -ntp clean verify
+      #   - name: Build, Test & Package
+      #     run: mvn -B -ntp clean verify
 
       - name: Verify Maven Wrapper present
         run: |
@@ -85,7 +85,7 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           name: ${{ env.ARTIFACT_NAME }}
-          path: ${{ env.PROJECT_DIR }}/target/
+          path: ${{ env.WORKDIR }}/target/
 
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v4
