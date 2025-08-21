@@ -15,7 +15,7 @@ COPY src src
 COPY db db
 
 RUN for i in 1 2 3; do \
-    ./mvnw -B -ntp -DskipTests \
+    ./mvnw -B -ntp -DskipTests -Dspotless.check.skip=true -Dspotless.skip=true \
     -Dmaven.wagon.http.retryHandler.count=5 \
     -Dmaven.wagon.http.pool=false \
     -Dmaven.wagon.http.connectionTimeout=60000 \
