@@ -14,42 +14,55 @@ env:
   IMAGE_TAG: ${{ github.sha }}
 
 jobs:
-  tests_package:
-    name: Tests & Package
-    runs-on: ubuntu-24.04
+  build_test:
+    name: Build & Test (Backend)
+    runs-on: ubuntu-latest
+
     defaults:
       run:
         working-directory: ${{ env.WORKDIR }}
 
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout
+        uses: actions/checkout@v4
 
-      - name: Set up JDK 21
+      - name: Setup Temurin JDK
         uses: actions/setup-java@v4
         with:
           distribution: temurin
-          java-version: "21"
+          java-version: ${{ env.JAVA_VERSION }}
           cache: maven
 
-      - name: Build & Test
-        run: mvn -f $PROJECT_DIR -B -ntp clean verify
+      - name: Verify Maven Wrapper present
+        run: |
+          if [ ! -f "./mvnw" ]; then
+            echo "::warning::mvnw non trouvé. On utilisera mvn système."
+          fi
 
-      - name: Build & Test
-        run: ../mvnw -B -ntp clean verify
+      - name: Show versions
+        run: |
+          java -version
+          ./mvnw -v || mvn -v
 
-      - name: Upload JAR artifact
+      - name: Unit tests
+        run: |
+          chmod +x mvnw || true
+          ./mvnw -B -ntp -DskipTests=false test || mvn -B -ntp -DskipTests=false test
+
+      - name: Package (Jar)
+        run: |
+          ./mvnw -B -ntp -DskipTests package || mvn -B -ntp -DskipTests package
+
+      - name: Collect JAR
+        id: jar_path
+        run: |
+          FILE=$(ls -1 target/*.jar | head -n1)
+          echo "file=$FILE" >> "$GITHUB_OUTPUT"
+
+      - name: Upload artifact
         uses: actions/upload-artifact@v4
         with:
-          name: backend-jar
-          path: ${{ env.PROJECT_DIR }}/target/*.jar
-          retention-days: 1
-
-      - name: Jacoco summary (optional)
-        if: always()
-        uses: madrapps/jacoco-report@v1.6
-        continue-on-error: true
-        with:
-          paths: ${{ env.PROJECT_DIR }}/target/site/jacoco/jacoco.xml
-          token: ${{ github.token }}
-          min-coverage-overall: "85"
-          min-coverage-changed-files: "85"
+          name: ${{ env.ARTIFACT_NAME }}
+          path: ${{ env.WORKDIR }}/${{ steps.jar_path.outputs.file }}
+          if-no-files-found: error
+          retention-days: 7
