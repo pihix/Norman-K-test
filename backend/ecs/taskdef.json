@@ -1,5 +1,5 @@
 {
-  "family": "normank-backend",
+  "family": "task-df-normank",
   "networkMode": "awsvpc",
   "requiresCompatibilities": ["FARGATE"],
   "cpu": "512",
