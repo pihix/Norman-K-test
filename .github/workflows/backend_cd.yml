@@ -34,7 +34,7 @@ jobs:
         id: render
         uses: aws-actions/amazon-ecs-render-task-definition@v1
         with:
-          task-definition: ecs/taskdef.json
+          task-definition: backend/ecs/taskdef.json
           container-name: ${{ env.CONTAINER_NAME }}
           image: ${{ env.AWS_ECR_REGISTRY }}/normank/backend:${{ github.sha }}
 
