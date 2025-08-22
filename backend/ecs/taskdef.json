@@ -8,7 +8,7 @@
   "taskRoleArn": "arn:aws:iam::619071311778:role/ecsTaskRole",
   "containerDefinitions": [
     {
-      "name": "app",
+      "name": "normank-backend",
       "image": "REPLACED_BY_GA",
       "portMappings": [{ "containerPort": 8080, "protocol": "tcp" }],
       "environment": [
