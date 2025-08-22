@@ -26,9 +26,9 @@ jobs:
     name: BackEnd CI
     uses: ./.github/workflows/backend_ci.yml
     secrets: inherit
-#   backend_cd:
-#     name: BackEnd CD
-#     needs: backend_ci
-#     # if: false # Change this condition when you want to enable CD (eg: `if: github.event_name != 'pull_request'`)
-#     uses: ./.github/workflows/backend_cd.yml
-#     secrets: inherit
+
+  backend_cd:
+    name: BackEnd CD
+    needs: backend_ci
+    uses: ./.github/workflows/backend_cd.yml
+    secrets: inherit
