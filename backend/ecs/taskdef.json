@@ -5,7 +5,7 @@
   "cpu": "512",
   "memory": "1024",
   "executionRoleArn": "arn:aws:iam::619071311778:role/ecsTaskExecutionRole",
-  "taskRoleArn": "arn:aws:iam::619071311778:role/ecsTaskExecutionRole",
+  "taskRoleArn": "arn:aws:iam::619071311778:role/ecsTaskRole",
   "containerDefinitions": [
     {
       "name": "normank-backend",
