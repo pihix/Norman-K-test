@@ -15,7 +15,7 @@
         { "name": "SPRING_PROFILES_ACTIVE", "value": "dev" },
         { "name": "ENABLE_SWAGGER", "value": "false" },
         { "name": "SPRING_DATASOURCE_USERNAME", "value": "postgres" },
-        { "name": "SPRING_DATASOURCE_URL", "value": "normank-db.cluster-c8picm0s4c0o.us-east-1.rds.amazonaws.com:5432/postgres" },
+        { "name": "SPRING_DATASOURCE_URL", "value": "jdbc:postgresql://normank-db.cluster-c8picm0s4c0o.us-east-1.rds.amazonaws.com:5432/postgres" },
         { "name": "JWT_SECRET", "value": "zdtlD3JK56m6wTTgsNFhqzjqPaaaddingFor256bits=" },
         { "name": "JWT_ISSUER", "value": "nimbleways" }
       ],
