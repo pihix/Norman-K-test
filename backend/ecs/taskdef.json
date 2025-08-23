@@ -12,7 +12,17 @@
       "image": "REPLACED_BY_GA",
       "portMappings": [{ "containerPort": 8080, "protocol": "tcp" }],
       "environment": [
-        { "name": "SPRING_PROFILES_ACTIVE", "value": "dev" }
+        { "name": "SPRING_PROFILES_ACTIVE", "value": "dev" },
+        { "name": "ENABLE_SWAGGER", "value": "false" },
+        { "name": "SPRING_DATASOURCE_USERNAME", "value": "postgres" },
+        { "name": "SPRING_DATASOURCE_URL", "value": "normank-db.cluster-c8picm0s4c0o.us-east-1.rds.amazonaws.com:5432/postgres" },
+        { "name": "JWT_SECRET", "value": "zdtlD3JK56m6wTTgsNFhqzjqPaaaddingFor256bits=" },
+        { "name": "JWT_ISSUER", "value": "nimbleways" }
+      ],
+        "secrets": [
+        
+        { "name": "SPRING_DATASOURCE_PASSWORD", "valueFrom": "arn:aws:secretsmanager:us-east-1:619071311778:secret:rds!cluster-2dd81cd7-6220-4f36-a656-69231fe3cb6c-dUt8EC" }
+        
       ],
       "logConfiguration": {
         "logDriver": "awslogs",
