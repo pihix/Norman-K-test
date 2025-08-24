@@ -72,6 +72,17 @@ jobs:
           if-no-files-found: error
           retention-days: 7
 
+  sec_backend_deps:
+    runs-on: ubuntu-24.04
+    defaults:
+      run:
+        working-directory: ${{ env.WORKDIR }}    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with: { distribution: temurin, java-version: "21", cache: maven }
+      - name: OWASP Dependency-Check (rapide)
+        run: mvn -B org.owasp:dependency-check-maven:check -DskipTests
+
   docker_build_push_ecr:
     name: Build & Push Docker image to ECR
     runs-on: ubuntu-latest
