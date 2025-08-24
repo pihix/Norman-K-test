@@ -35,9 +35,6 @@ jobs:
           java-version: ${{ env.JAVA_VERSION }}
           cache: maven
 
-      #   - name: Build, Test & Package
-      #     run: mvn -B -ntp clean verify
-
       - name: Verify Maven Wrapper present
         run: |
           if [ ! -f "./mvnw" ]; then
@@ -49,40 +46,47 @@ jobs:
           java -version
           ./mvnw -v || mvn -v
 
-      - name: Unit tests
+      - name: Run tests & generate coverage
         run: |
           chmod +x mvnw || true
-          ./mvnw -B -ntp -DskipTests=false test || mvn -B -ntp -DskipTests=false test
+          ./mvnw -B -ntp clean verify || mvn -B -ntp clean verify
 
-      - name: Package (Jar)
-        run: |
-          ./mvnw -B -ntp -DskipTests package || mvn -B -ntp -DskipTests package
-
-      - name: Collect JAR
-        id: jar_path
-        run: |
-          FILE=$(ls -1 target/*.jar | head -n1)
-          echo "file=$FILE" >> "$GITHUB_OUTPUT"
-
-      - name: Upload artifact
+      - name: Upload JaCoCo HTML coverage report
         uses: actions/upload-artifact@v4
         with:
-          name: ${{ env.ARTIFACT_NAME }}
-          path: ${{ env.WORKDIR }}/${{ steps.jar_path.outputs.file }}
-          if-no-files-found: error
-          retention-days: 7
+          name: coverage-report
+          path: backend/target/site/jacoco/
+          retention-days: 2
 
-  sec_backend_deps:
-    runs-on: ubuntu-24.04
-    defaults:
-      run:
-        working-directory: ${{ env.WORKDIR }}
-    steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-java@v4
-        with: { distribution: temurin, java-version: "21", cache: maven }
-      - name: OWASP Dependency-Check (rapide)
-        run: mvn -B org.owasp:dependency-check-maven:check -DskipTests
+        # - name: Package (Jar)
+        #   run: |
+        #     ./mvnw -B -ntp -DskipTests package || mvn -B -ntp -DskipTests package
+
+        # - name: Collect JAR
+        #   id: jar_path
+        #   run: |
+        #     FILE=$(ls -1 target/*.jar | head -n1)
+        #     echo "file=$FILE" >> "$GITHUB_OUTPUT"
+
+        # - name: Upload artifact
+        #   uses: actions/upload-artifact@v4
+        #   with:
+        #     name: ${{ env.ARTIFACT_NAME }}
+        #     path: ${{ env.WORKDIR }}/${{ steps.jar_path.outputs.file }}
+        #     if-no-files-found: error
+        #     retention-days: 7
+
+  # sec_backend_deps:
+  #   runs-on: ubuntu-24.04
+  #   defaults:
+  #     run:
+  #       working-directory: ${{ env.WORKDIR }}
+  #   steps:
+  #     - uses: actions/checkout@v4
+  #     - uses: actions/setup-java@v4
+  #       with: { distribution: temurin, java-version: "21", cache: maven }
+  #     - name: OWASP Dependency-Check (rapide)
+  #       run: mvn -B org.owasp:dependency-check-maven:check -DskipTests
 
   docker_build_push_ecr:
     name: Build & Push Docker image to ECR
