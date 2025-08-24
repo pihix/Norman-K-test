@@ -1,4 +1,23 @@
-# ---------- Runtime only ----------
+# ---------- Build stage ----------
+FROM eclipse-temurin:21-jdk-alpine AS builder
+
+WORKDIR /app
+
+RUN apk add --no-cache nodejs npm
+
+
+COPY .mvn .mvn
+COPY mvnw mvnw
+COPY pom.xml pom.xml
+
+
+RUN chmod +x mvnw && ./mvnw dependency:go-offline -B
+
+COPY src src
+
+RUN ./mvnw clean package -DskipTests -B
+
+# ---------- Runtime stage ----------
 FROM eclipse-temurin:21.0.7_6-jre-alpine
 
 ENV USER_NAME=api-user \
@@ -11,10 +30,8 @@ ENV USER_NAME=api-user \
 RUN adduser -D --shell /bin/bash --home /opt/${USER_NAME} ${USER_NAME} \
     && mkdir -p ${APP_HOME}
 
-# Copie le .jar qui vient de GitHub Actions
-COPY target/*.jar ${APP_HOME}/application.jar
+COPY --from=builder /app/target/*.jar ${APP_HOME}/application.jar
 RUN chown -R ${USER_NAME}: ${APP_HOME}
-
 
 USER ${USER_NAME}
 WORKDIR ${APP_HOME}
