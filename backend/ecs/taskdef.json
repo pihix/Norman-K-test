@@ -21,7 +21,7 @@
       ],
         "secrets": [
         
-        { "name": "SPRING_DATASOURCE_PASSWORD", "valueFrom": "arn:aws:secretsmanager:us-east-1:619071311778:secret:rds!cluster-2dd81cd7-6220-4f36-a656-69231fe3cb6c-dUt8EC" }
+        { "name": "SPRING_DATASOURCE_PASSWORD", "valueFrom": "arn:aws:secretsmanager:us-east-1:619071311778:secret:normank-db-password-QSfkfT" }
         
       ],
       "logConfiguration": {
