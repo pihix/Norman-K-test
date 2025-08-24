@@ -130,6 +130,72 @@ jobs:
           name: mutation-report
           path: ${{ env.WORKDIR }}/target/pit-reports/
           retention-days: 2
+  integration_tests:
+    name: Integration Tests (Backend)
+    runs-on: ubuntu-latest
+    needs: build_test
+    timeout-minutes: 20
+
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_USER: test
+          POSTGRES_PASSWORD: test
+          POSTGRES_DB: app_it
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U test -d app_it"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 10
+
+    defaults:
+      run:
+        working-directory: ${{ env.WORKDIR }}
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Temurin JDK
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: ${{ env.JAVA_VERSION }}
+          cache: maven
+
+      - name: Wait for Postgres
+        run: |
+          sudo apt-get update -y
+          sudo apt-get install -y postgresql-client
+          for i in {1..20}; do
+            pg_isready -h localhost -p 5432 -U test -d app_it && break
+            echo "Waiting for Postgres... ($i/20)"
+            sleep 3
+          done
+
+      - name: Run Integration Tests (Failsafe)
+        env:
+          SPRING_DATASOURCE_URL: jdbc:postgresql://localhost:5432/app_it
+          SPRING_DATASOURCE_USERNAME: test
+          SPRING_DATASOURCE_PASSWORD: test
+          SPRING_PROFILES_ACTIVE: it
+        run: |
+          chmod +x mvnw || true
+          # utilise le profil 'integration' pour ne PAS relancer les UT
+          ./mvnw -B -ntp verify -Pintegration || mvn -B -ntp verify -Pintegration
+
+      - name: Upload IT reports (Surefire/Failsafe)
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: it-reports
+          path: |
+            ${{ env.WORKDIR }}/target/failsafe-reports/
+            ${{ env.WORKDIR }}/target/surefire-reports/
+          retention-days: 2
 
   # sec_backend_deps:
   #   runs-on: ubuntu-24.04
@@ -146,7 +212,7 @@ jobs:
   docker_build_push_ecr:
     name: Build & Push Docker image to ECR
     runs-on: ubuntu-latest
-    needs: build_test
+    needs: [build_test, integration_tests]
 
     steps:
       - name: Checkout code
