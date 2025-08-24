@@ -15,7 +15,7 @@ RUN chmod +x mvnw && ./mvnw dependency:go-offline -B
 
 COPY src src
 
-RUN ./mvnw clean package -DskipTests -Dgit.commit.id.skip=true -Dspotless.check.skip=true -B -X
+RUN ./mvnw clean package -DskipTests -B -Dspotless.check.skip=true -Denv.DOCKER_BUILD=true
 
 # ---------- Runtime stage ----------
 FROM eclipse-temurin:21.0.7_6-jre-alpine
