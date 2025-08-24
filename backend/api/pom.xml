@@ -132,6 +132,9 @@
                                 <annotationProcessor>
                                     org.checkerframework.checker.nullness.NullnessChecker</annotationProcessor>
                             </annotationProcessors>
+                            <configuration>
+                                <skip>${git.commit.id.skip}</skip>
+                            </configuration>
                         </configuration>
                     </plugin>
                 </plugins>
