@@ -111,7 +111,9 @@ jobs:
           cache: maven
 
       - name: Run PIT Mutation Tests
-        run: ./mvnw -B org.pitest:pitest-maven:mutationCoverage -Dgit.commit.id.skip=true -Dspotless.check.skip=true
+        run: |
+          chmod +x mvnw
+          ./mvnw -B org.pitest:pitest-maven:mutationCoverage -Dgit.commit.id.skip=true -Dspotless.check.skip=true
 
       - name: Upload mutation report on failure
         if: ${{ failure() }}
