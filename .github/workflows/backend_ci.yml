@@ -46,8 +46,13 @@ jobs:
           java -version
           ./mvnw -v || mvn -v
 
+      - name: Run Unit Tests
+        run: |
+          chmod +x mvnw || true
+          ./mvnw -B -ntp test || mvn -B -ntp test
+
       - name: Run tests & generate coverage
-        if: github.event_name == 'pull_request'
+        if: github.event_name == 'pull_request' || github.ref == 'refs/heads/main'
         run: |
           chmod +x mvnw || true
           ./mvnw -B -ntp clean verify || mvn -B -ntp clean verify
