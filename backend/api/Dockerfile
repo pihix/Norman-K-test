@@ -15,7 +15,7 @@ RUN chmod +x mvnw && ./mvnw dependency:go-offline -B
 
 COPY src src
 
-RUN ./mvnw clean package -DskipTests -B -Dspotless.check.skip=true -Denv.DOCKER_BUILD=true
+RUN ./mvnw clean package -DskipTests -B -Dspotless.check.skip=true -Pdocker
 
 # ---------- Runtime stage ----------
 FROM eclipse-temurin:21.0.7_6-jre-alpine
