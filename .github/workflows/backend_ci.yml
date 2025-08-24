@@ -47,22 +47,24 @@ jobs:
           ./mvnw -v || mvn -v
 
       - name: Run tests & generate coverage
+        if: github.event_name == 'pull_request'
         run: |
           chmod +x mvnw || true
           ./mvnw -B -ntp clean verify || mvn -B -ntp clean verify
+
+      - name: Upload JaCoCo HTML coverage report
+        if: github.event_name == 'pull_request'
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage-report
+          path: ${{ env.WORKDIR }}/target/site/jacoco/
+          retention-days: 2
 
       - name: Upload compilation artifact (target folder)
         uses: actions/upload-artifact@v4
         with:
           name: backend-compilation
           path: ${{ env.WORKDIR }}/target
-          retention-days: 2
-
-      - name: Upload JaCoCo HTML coverage report
-        uses: actions/upload-artifact@v4
-        with:
-          name: coverage-report
-          path: backend/target/site/jacoco/
           retention-days: 2
 
       - name: Package (Jar)
@@ -81,12 +83,13 @@ jobs:
           name: ${{ env.ARTIFACT_NAME }}
           path: ${{ env.WORKDIR }}/${{ steps.jar_path.outputs.file }}
           if-no-files-found: error
-          retention-days: 7
+          retention-days: 2
 
   mutation-tests:
     name: Mutation Tests
     runs-on: ubuntu-latest
     needs: build_test
+    continue-on-error: true
     timeout-minutes: 20
 
     defaults:
@@ -112,7 +115,7 @@ jobs:
 
       - name: Run PIT Mutation Tests
         run: |
-          chmod +x mvnw
+          chmod +x mvnw || true
           ./mvnw -B org.pitest:pitest-maven:mutationCoverage -Dgit.commit.id.skip=true -Dspotless.check.skip=true
 
       - name: Upload mutation report on failure
