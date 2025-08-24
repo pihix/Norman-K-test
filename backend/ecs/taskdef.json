@@ -20,9 +20,8 @@
         { "name": "JWT_ISSUER", "value": "nimbleways" }
       ],
         "secrets": [
-        
+      
         { "name": "SPRING_DATASOURCE_PASSWORD", "valueFrom": "arn:aws:secretsmanager:us-east-1:619071311778:secret:normank-db-password-QSfkfT" }
-        
       ],
       "logConfiguration": {
         "logDriver": "awslogs",

@@ -15,7 +15,7 @@ RUN adduser -D --shell /bin/bash --home /opt/${USER_NAME} ${USER_NAME} \
 COPY target/*.jar ${APP_HOME}/application.jar
 RUN chown -R ${USER_NAME}: ${APP_HOME}
 
-
+# comment
 USER ${USER_NAME}
 WORKDIR ${APP_HOME}
 EXPOSE 8080
