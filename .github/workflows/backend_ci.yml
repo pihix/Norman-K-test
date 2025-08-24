@@ -46,35 +46,35 @@ jobs:
           java -version
           ./mvnw -v || mvn -v
 
-      # - name: Run tests & generate coverage
-      #   run: |
-      #     chmod +x mvnw || true
-      #     ./mvnw -B -ntp clean verify || mvn -B -ntp clean verify
+      - name: Run tests & generate coverage
+        run: |
+          chmod +x mvnw || true
+          ./mvnw -B -ntp clean verify || mvn -B -ntp clean verify
 
-      # - name: Upload JaCoCo HTML coverage report
-      #   uses: actions/upload-artifact@v4
-      #   with:
-      #     name: coverage-report
-      #     path: backend/target/site/jacoco/
-      #     retention-days: 2
+      - name: Upload JaCoCo HTML coverage report
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage-report
+          path: backend/target/site/jacoco/
+          retention-days: 2
 
-      # - name: Package (Jar)
-      #   run: |
-      #     ./mvnw -B -ntp -DskipTests package || mvn -B -ntp -DskipTests package
+      - name: Package (Jar)
+        run: |
+          ./mvnw -B -ntp -DskipTests package || mvn -B -ntp -DskipTests package
 
-      # - name: Collect JAR
-      #   id: jar_path
-      #   run: |
-      #     FILE=$(ls -1 target/*.jar | head -n1)
-      #     echo "file=$FILE" >> "$GITHUB_OUTPUT"
+      - name: Collect JAR
+        id: jar_path
+        run: |
+          FILE=$(ls -1 target/*.jar | head -n1)
+          echo "file=$FILE" >> "$GITHUB_OUTPUT"
 
-      # - name: Upload artifact
-      #   uses: actions/upload-artifact@v4
-      #   with:
-      #     name: ${{ env.ARTIFACT_NAME }}
-      #     path: ${{ env.WORKDIR }}/${{ steps.jar_path.outputs.file }}
-      #     if-no-files-found: error
-      #     retention-days: 7
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ env.ARTIFACT_NAME }}
+          path: ${{ env.WORKDIR }}/${{ steps.jar_path.outputs.file }}
+          if-no-files-found: error
+          retention-days: 7
 
   # sec_backend_deps:
   #   runs-on: ubuntu-24.04
@@ -97,11 +97,11 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      # - name: Download backend artifact
-      #   uses: actions/download-artifact@v4
-      #   with:
-      #     name: ${{ env.ARTIFACT_NAME }}
-      #     path: backend/api/target
+      - name: Download backend artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: ${{ env.ARTIFACT_NAME }}
+          path: backend/api/target
 
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v4
