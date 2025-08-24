@@ -97,11 +97,11 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Download backend artifact
-        uses: actions/download-artifact@v4
-        with:
-          name: ${{ env.ARTIFACT_NAME }}
-          path: backend/api/target
+      # - name: Download backend artifact
+      #   uses: actions/download-artifact@v4
+      #   with:
+      #     name: ${{ env.ARTIFACT_NAME }}
+      #     path: backend/api/target
 
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v4
