@@ -63,6 +63,7 @@ const staticExportConfig = {
   ...basicConfig,
   output: "export",
   images: { unoptimized: true },
+  assetPrefix: process.env.NEXT_PUBLIC_CDN_URL || "",
 };
 
 /** @type {import('next').NextConfig} */
