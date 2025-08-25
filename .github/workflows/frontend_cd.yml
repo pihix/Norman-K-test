@@ -109,3 +109,43 @@ jobs:
             --exclude "assets/*" \
             --cache-control "public,max-age=60" \
             --metadata-directive REPLACE
+
+  ####################################################################################################
+
+  deploy_ecs:
+    name: Deploy Frontend on ECS
+    runs-on: ubuntu-latest
+    needs: deploy_s3
+
+    env:
+      AWS_REGION: ${{ secrets.AWS_REGION }}
+      IMAGE_URI: ${{ secrets.AWS_ECR_REGISTRY }}/normank/frontend:${{ github.sha }}
+      CLUSTER_NAME: normank-cluster
+      SERVICE_NAME: normank-frontend-service
+      CONTAINER_NAME: normank-frontend
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ env.AWS_REGION }}
+
+      - name: Render new ECS task definition
+        id: render-task-def
+        uses: aws-actions/amazon-ecs-render-task-definition@v1
+        with:
+          task-definition: frontend/.aws/taskdef-frontend.json
+          container-name: ${{ env.CONTAINER_NAME }}
+          image: ${{ env.IMAGE_URI }}
+
+      - name: Deploy to ECS
+        uses: aws-actions/amazon-ecs-deploy-task-definition@v1
+        with:
+          cluster: ${{ env.CLUSTER_NAME }}
+          service: ${{ env.SERVICE_NAME }}
+          task-definition: ${{ steps.render-task-def.outputs.task-definition }}
