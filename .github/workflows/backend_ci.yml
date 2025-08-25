@@ -43,6 +43,13 @@ jobs:
           chmod +x mvnw || true
           ./mvnw -B -ntp -DskipTests package || mvn -B -ntp -DskipTests package
 
+      - name: Upload build folder (target)
+        uses: actions/upload-artifact@v4
+        with:
+          name: backend-target
+          path: ${{ env.WORKDIR }}/target
+          retention-days: 2
+
       - name: Collect JAR path
         id: jar_path
         run: |
@@ -112,10 +119,10 @@ jobs:
           java-version: ${{ env.JAVA_VERSION }}
           cache: maven
 
-      - name: Download JAR
+      - name: Download target folder
         uses: actions/download-artifact@v4
         with:
-          name: ${{ env.ARTIFACT_NAME }}
+          name: backend-target
           path: ${{ env.WORKDIR }}/target
 
       - name: Run PIT Mutation Tests
@@ -204,7 +211,9 @@ jobs:
   docker_build_push_ecr:
     name: Build & Push Docker image to ECR
     runs-on: ubuntu-latest
-    needs: unit-tests
+    needs:
+      - unit-tests
+      - integration_tests
 
     steps:
       - name: Checkout code
