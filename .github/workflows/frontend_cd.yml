@@ -67,7 +67,13 @@ jobs:
           restore-keys: |
             pnpm-store-${{ runner.os }}-
 
-      - name: Install deps
+      - name: Download frontend build
+        uses: actions/download-artifact@v4
+        with:
+          name: frontend-export
+          path: ${{ inputs.workdir }}/out
+
+      - name: Install dependencies
         run: pnpm install --frozen-lockfile --prefer-offline
 
       - name: Export build metadata
@@ -95,8 +101,19 @@ jobs:
 
       - name: Upload immutable assets with long cache
         run: |
-          aws s3 cp ./out s3://$TARGET_BUCKET/ --recursive --exclude "*" --include "_next/static/*" --include "assets/*" --cache-control "public,max-age=31536000,immutable" --metadata-directive REPLACE
+          aws s3 cp ./out s3://$TARGET_BUCKET/ \
+            --recursive \
+            --exclude "*" \
+            --include "_next/static/*" \
+            --include "assets/*" \
+            --cache-control "public,max-age=31536000,immutable" \
+            --metadata-directive REPLACE
 
       - name: Upload HTML and others with short cache
         run: |
-          aws s3 cp ./out s3://$TARGET_BUCKET/ --recursive --exclude "_next/*" --exclude "assets/*" --cache-control "public,max-age=60" --metadata-directive REPLACE
+          aws s3 cp ./out s3://$TARGET_BUCKET/ \
+            --recursive \
+            --exclude "_next/*" \
+            --exclude "assets/*" \
+            --cache-control "public,max-age=60" \
+            --metadata-directive REPLACE
