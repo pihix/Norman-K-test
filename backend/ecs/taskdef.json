@@ -18,9 +18,11 @@
         { "name": "SPRING_DATASOURCE_URL", "value": "jdbc:postgresql://normank-db.cluster-c8picm0s4c0o.us-east-1.rds.amazonaws.com:5432/normank_database" },
         { "name": "JWT_SECRET", "value": "zdtlD3JK56m6wTTgsNFhqzjqPaaaddingFor256bits=" },
         { "name": "JWT_ISSUER", "value": "nimbleways" },
-        { "name": "SPRING_DATASOURCE_PASSWORD", "value": "q><O8>LZvcvo8P~gF[[dFtC6ka5m" }
       ],
-        
+        "secrets": [
+      
+        { "name": "SPRING_DATASOURCE_PASSWORD", "valueFrom": "arn:aws:secretsmanager:us-east-1:619071311778:secret:normank-db-password-QSfkfT" }
+      ],
       "logConfiguration": {
         "logDriver": "awslogs",
         "options": {
