@@ -22,7 +22,6 @@
     "test:coverage": "jest --coverage --maxWorkers=50% --silent --watchAll=false --reporters=default --coverageReporters=cobertura --coverageReporters=text-summary --coverageReporters=json-summary --coverageReporters=lcov --testMatch='**/*.{spec,test}.{js,jsx,ts,tsx}'",
     "generate": "plop",
     "preinstall": "npx -y only-allow pnpm",
-    "prepare": "next telemetry disable && node .husky/install.mjs",
     "check-filesize": "node .ci/scripts/check-filesize.js",
     "pre-push-check": "pnpm lint && pnpm test && pnpm build",
     "pre-commit-check": "pnpm typecheck && lint-staged && pnpm check-filesize && pnpm knip",
