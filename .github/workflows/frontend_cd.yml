@@ -91,7 +91,7 @@ jobs:
           INDEX=$(( (N - 1) % 3 + 1 ))
           echo "TARGET_BUCKET=front-normank-v$INDEX" >> $GITHUB_ENV
           echo "Deploying to front-normank-v$INDEX"
-      # test new push
+      # test new version
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v4
         with:
