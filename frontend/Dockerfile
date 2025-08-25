@@ -1,26 +1,33 @@
-FROM node:20 as node_with_pnpm
-COPY package.json ./
-RUN corepack enable && corepack prepare --activate
+# ---------- Build ----------
+FROM node:20-alpine AS builder
+
 WORKDIR /app
 
-FROM node_with_pnpm as composer
-ENV NODE_ENV=production
+
+COPY package*.json ./
 COPY pnpm-lock.yaml ./
-RUN pnpm fetch
-COPY package.json ./
-COPY .husky ./.husky
-RUN pnpm install --prefer-offline --frozen-lockfile
-ADD . ./
+COPY .npmrc .npmrc
+
+RUN npm install -g pnpm && pnpm install
+
+COPY . .
+
 RUN pnpm build
 
-FROM node_with_pnpm as runner
+# ---------- Runtime ----------
+FROM node:20-alpine AS runner
+
+WORKDIR /app
+
+
+COPY --from=builder /app/package.json ./
+COPY --from=builder /app/.next ./.next
+COPY --from=builder /app/public ./public
+COPY --from=builder /app/node_modules ./node_modules
+COPY --from=builder /app/next.config.js ./
+COPY --from=builder /app/.env.production ./
+
 ENV NODE_ENV=production
-
-COPY --from=composer /app/node_modules ./node_modules
-COPY --from=composer /app/.next ./.next
-COPY --from=composer /app/public ./public
-COPY --from=composer /app/package.json ./package.json
-COPY --from=composer /app/next.config.js ./
-
 EXPOSE 3000
-CMD ["pnpm", "start"]
+
+CMD ["node_modules/.bin/next", "start"]
