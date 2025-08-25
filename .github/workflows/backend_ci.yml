@@ -166,21 +166,8 @@ jobs:
           java-version: ${{ env.JAVA_VERSION }}
           cache: maven
 
-      - name: Wait for Postgres
-        run: |
-          sudo apt-get update -y
-          sudo apt-get install -y postgresql-client
-          for i in {1..20}; do
-            pg_isready -h localhost -p 5432 -U test -d app_it && break
-            echo "Waiting for Postgres... ($i/20)"
-            sleep 3
-          done
-
       - name: Run Integration Tests (Failsafe)
         env:
-          SPRING_DATASOURCE_URL: jdbc:postgresql://localhost:5432/app_it
-          SPRING_DATASOURCE_USERNAME: test
-          SPRING_DATASOURCE_PASSWORD: test
           SPRING_PROFILES_ACTIVE: it
         run: |
           chmod +x mvnw || true
