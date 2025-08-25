@@ -27,14 +27,10 @@ on:
         required: true
       AWS_REGION:
         required: true
-      S3_BUCKET:
-        required: true
-      CLOUDFRONT_DISTRIBUTION_ID:
-        required: false
 
 jobs:
   deploy_s3:
-    name: Deploy static export to S3
+    name: Deploy static export to S3 (rotating buckets)
     runs-on: ubuntu-latest
     concurrency:
       group: ${{ github.ref }}-frontend-s3
@@ -63,6 +59,7 @@ jobs:
       - name: Restore pnpm store
         id: pnpm-cache
         run: echo "STORE_PATH=$(pnpm store path --silent)" >> $GITHUB_OUTPUT
+
       - uses: actions/cache@v4
         with:
           path: ${{ steps.pnpm-cache.outputs.STORE_PATH }}
@@ -82,30 +79,24 @@ jobs:
       - name: Build (Next.js export)
         run: pnpm build:export
 
+      - name: Compute rotating target bucket (v1-v2-v3)
+        run: |
+          N=${{ github.run_number }}
+          INDEX=$(( (N - 1) % 3 + 1 ))
+          echo "TARGET_BUCKET=normank-front-v$INDEX" >> $GITHUB_ENV
+          echo "Deploying to normank-front-v$INDEX"
+
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v4
         with:
-          aws-access-key-id:     ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          aws-region:            ${{ secrets.AWS_REGION }}
+          aws-region: ${{ secrets.AWS_REGION }}
 
-      # 1) assets hashés => long cache
       - name: Upload immutable assets with long cache
         run: |
-          aws s3 cp ./out s3://${{ secrets.S3_BUCKET }}/ \
-            --recursive \
-            --exclude "*" \
-            --include "_next/static/*" \
-            --include "assets/*" \
-            --cache-control "public,max-age=31536000,immutable" \
-            --metadata-directive REPLACE
+          aws s3 cp ./out s3://$TARGET_BUCKET/ --recursive --exclude "*" --include "_next/static/*" --include "assets/*" --cache-control "public,max-age=31536000,immutable" --metadata-directive REPLACE
 
-      # 2) html & le reste => cache court
       - name: Upload HTML and others with short cache
         run: |
-          aws s3 cp ./out s3://${{ secrets.S3_BUCKET }}/ \
-            --recursive \
-            --exclude "_next/*" \
-            --exclude "assets/*" \
-            --cache-control "public,max-age=60" \
-            --metadata-directive REPLACE
+          aws s3 cp ./out s3://$TARGET_BUCKET/ --recursive --exclude "_next/*" --exclude "assets/*" --cache-control "public,max-age=60" --metadata-directive REPLACE
