@@ -167,8 +167,7 @@ jobs:
           cache: maven
 
       - name: Run Integration Tests (Failsafe)
-        env:
-          SPRING_PROFILES_ACTIVE: it
+
         run: |
           chmod +x mvnw || true
           # utilise le profil 'integration' pour ne PAS relancer les UT
